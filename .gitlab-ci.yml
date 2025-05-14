@@ -1,0 +1,47 @@
+image:
+  name: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+  entrypoint: [""]
+
+variables:
+  DEPLOY_BRANCH: main
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - iac/.terraform/
+    - iac/.terraform.lock.hcl
+  policy: pull-push
+
+stages:
+  - plan
+  - apply
+
+before_script:
+  - cd iac
+
+plan:prod:
+  stage: plan
+  variables:
+    ENVIRONMENT: "prod"
+  script:
+    - |
+      terraform init
+      terraform plan \
+        -var-file="environment/prod-terraform.tfvars" \
+        -var "region=$AWS_DEFAULT_REGION"
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+apply:prod:
+  stage: apply
+  variables:
+    ENVIRONMENT: "prod"
+  script:
+    - |
+      terraform init
+      terraform apply -auto-approve \
+        -var-file="environment/prod-terraform.tfvars" \
+        -var "region=$AWS_DEFAULT_REGION"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $DEPLOY_BRANCH
+      when: manual
