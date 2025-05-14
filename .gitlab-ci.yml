@@ -1,9 +1,17 @@
-image:
-  name: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
-  entrypoint: [""]
+default:
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
 
 variables:
-  DEPLOY_BRANCH: main
+  DEPLOY_BRANCH: "main"
+
+before_script:
+  - yum install -y yum-utils
+  - yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+  - yum -y install terraform
+  - aws --version
+  - cd iac
 
 cache:
   key: "$CI_COMMIT_REF_SLUG"
@@ -16,32 +24,29 @@ stages:
   - plan
   - apply
 
-before_script:
-  - cd iac
-
 plan:prod:
   stage: plan
-  variables:
-    ENVIRONMENT: "prod"
+  environment:
+    name: Production
   script:
     - |
       terraform init
       terraform plan \
         -var-file="environment/prod-terraform.tfvars" \
-        -var "region=$AWS_DEFAULT_REGION"
+        -var "account_id=$ACCOUNT_ID"
   rules:
     - if: $CI_COMMIT_BRANCH
 
 apply:prod:
   stage: apply
-  variables:
-    ENVIRONMENT: "prod"
+  environment:
+    name: Production
   script:
     - |
       terraform init
-      terraform apply -auto-approve \
+      terraform apply \
         -var-file="environment/prod-terraform.tfvars" \
-        -var "region=$AWS_DEFAULT_REGION"
+        -var "account_id=$ACCOUNT_ID" -auto-approve
   rules:
-    - if: $CI_COMMIT_BRANCH == $DEPLOY_BRANCH
+    - if: '$CI_COMMIT_BRANCH == $DEPLOY_BRANCH'
       when: manual

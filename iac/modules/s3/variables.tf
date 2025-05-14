@@ -15,22 +15,22 @@ variable "prefix" {
 
 variable "privileged_principal_arns" {
   description = "List of ARNs for privileged principals with access to the S3 bucket."
-  type        = list
+  type        = list(any)
   default     = []
 }
 
 variable "privileged_principal_actions" {
   description = "List of S3 actions allowed for privileged principals."
-  type        = list
+  type        = list(any)
   default     = []
 }
 
 variable "event_notification_details" {
   description = "Event notification configuration for the S3 bucket."
   type        = any
-  default     = {
-  "enabled": false
-}
+  default = {
+    "enabled" : false
+  }
 }
 
 variable "cors_configuration" {

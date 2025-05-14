@@ -9,6 +9,9 @@ module "global" {
 
   tags = {
     "projectName" = var.project_name
+    "environment" = var.environment
+    "owner"       = "hifeyinc"
+    "managedBy"   = "terraform"
   }
 }
 
