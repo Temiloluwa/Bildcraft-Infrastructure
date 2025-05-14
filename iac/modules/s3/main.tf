@@ -1,9 +1,10 @@
 module "s3_label" {
-  source     = "cloudposse/label/null"
-  version    = "0.25.0"
-  name       = var.project_code
-  attributes = [var.prefix]
-  context    = var.context
+  source      = "cloudposse/label/null"
+  version     = "0.25.0"
+  name        = var.project_code
+  attributes  = [var.prefix]
+  label_order = ["name", "attributes"]
+  context     = var.context
 }
 
 # docs: https://github.com/cloudposse/terraform-aws-s3-bucket
@@ -11,6 +12,7 @@ module "upload_s3_bucket" {
   source  = "cloudposse/s3-bucket/aws"
   version = "4.10.0"
   name    = "${module.s3_label.id}-uploads"
+  tags    = module.s3_label.tags
 
   s3_object_ownership = "BucketOwnerEnforced"
   enabled             = true
