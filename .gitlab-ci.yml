@@ -1,16 +1,15 @@
 default:
   image:
-    name: amazon/aws-cli
+    name: hashicorp/terraform:latest
     entrypoint: [""]
 
 variables:
   DEPLOY_BRANCH: "main"
+  TF_DATA_DIR: "${CI_PROJECT_DIR}/iac/.terraform"
+  TF_CLI_ARGS: "-no-color"
+  TF_IN_AUTOMATION: "true"
 
 before_script:
-  - yum install -y yum-utils
-  - yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-  - yum -y install terraform
-  - aws --version
   - cd iac
 
 cache:
@@ -18,22 +17,37 @@ cache:
   paths:
     - iac/.terraform/
     - iac/.terraform.lock.hcl
-  policy: pull-push
+  policy: pull
+  when: on_success
 
 stages:
   - plan
   - apply
 
+validate:
+  stage: .pre
+  environment:
+    name: Production
+  script:
+    - terraform init -backend=false
+    - terraform validate
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
 plan:prod:
   stage: plan
   environment:
     name: Production
-  script:
-    - |
-      terraform init
-      terraform plan \
-        -var-file="environment/prod-terraform.tfvars" \
-        -var "account_id=$ACCOUNT_ID"
+  script: |
+    terraform init
+    terraform plan -out=tfplan \
+      -var-file=environment/prod-terraform.tfvars \
+      -var "account_id=$ACCOUNT_ID"
+    terraform show -no-color tfplan > plan.txt
+  artifacts:
+    paths:
+      - iac/plan.txt
+    expire_in: 1 hour
   rules:
     - if: $CI_COMMIT_BRANCH
 
@@ -41,12 +55,30 @@ apply:prod:
   stage: apply
   environment:
     name: Production
-  script:
-    - |
-      terraform init
-      terraform apply \
-        -var-file="environment/prod-terraform.tfvars" \
-        -var "account_id=$ACCOUNT_ID" -auto-approve
+  dependencies:
+    - plan:prod
+  script: |
+    terraform init
+    terraform apply -auto-approve \
+      -var-file=environment/prod-terraform.tfvars \
+      -var "account_id=$ACCOUNT_ID" \
+      tfplan
   rules:
     - if: '$CI_COMMIT_BRANCH == $DEPLOY_BRANCH'
       when: manual
+
+cleanup:
+  stage: .post
+  environment:
+    name: Production
+  script:
+    - echo "Cleaning up pipeline cache..."
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - iac/.terraform/
+      - iac/.terraform.lock.hcl
+    policy: pull
+    when: always
+  rules:
+    - when: always
