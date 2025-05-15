@@ -2,6 +2,8 @@ terraform {
   backend "s3" {
     bucket = "blc-terraform-data-store"
     key    = "terraform/state/blc-infrastructure.tfstate"
+    encrypt        = true
+    dynamodb_table = "blc-terraform-state-lock"
   }
 
   required_providers {
