@@ -26,3 +26,31 @@ module "lambda_source_codes" {
   user_enabled        = false
   versioning_enabled  = false
 }
+
+module "lambda_deployment_iam_user" {
+  source  = "cloudposse/iam-system-user/aws"
+  version = "1.2.1"
+  name    = "${module.global.id}-lambda-deployment-user"
+  tags    = module.global.tags
+
+  ssm_base_path = "/${module.global.id}/lambda-deployment-user"
+  inline_policies_map = {
+    s3 = data.aws_iam_policy_document.lambda_deployment_s3_policy.json
+  }
+}
+
+data "aws_iam_policy_document" "lambda_deployment_s3_policy" {
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+      "s3:PutObject",
+      "s3:PutObjectAcl",
+      "s3:DeleteObject"
+    ]
+    resources = [
+      module.lambda_source_codes.bucket_arn,
+      "${module.lambda_source_codes.bucket_arn}/*"
+    ]
+  }
+}

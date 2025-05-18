@@ -72,6 +72,8 @@ cleanup:
     name: Production
   script:
     - echo "Cleaning up pipeline cache..."
+    - rm -rf iac/.terraform
+    - rm -f iac/.terraform.lock.hcl
   cache:
     key: "$CI_COMMIT_REF_SLUG"
     paths:
