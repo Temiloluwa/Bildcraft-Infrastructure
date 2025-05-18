@@ -8,21 +8,9 @@ variable "project_code" {
   type        = string
 }
 
-variable "prefix" {
+variable "name_prefix" {
   description = "The prefix to be added to resource names."
   type        = string
-}
-
-variable "privileged_principal_arns" {
-  description = "List of ARNs for privileged principals with access to the S3 bucket."
-  type        = list(any)
-  default     = []
-}
-
-variable "privileged_principal_actions" {
-  description = "List of S3 actions allowed for privileged principals."
-  type        = list(any)
-  default     = []
 }
 
 variable "event_notification_details" {
