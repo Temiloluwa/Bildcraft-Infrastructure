@@ -21,8 +21,10 @@ cache:
   when: on_success
 
 stages:
+  - .pre
   - plan
   - apply
+  - .post
 
 validate:
   stage: .pre
@@ -46,7 +48,6 @@ plan:prod:
     terraform show -no-color tfplan > plan.txt
   artifacts:
     paths:
-      - tfplan
       - plan.txt
     expire_in: 1 hour
   rules:
@@ -56,14 +57,11 @@ apply:prod:
   stage: apply
   environment:
     name: Production
-  dependencies:
-    - plan:prod
   script: |
     terraform init
     terraform apply -auto-approve \
       -var-file=environment/prod-terraform.tfvars \
-      -var "account_id=$ACCOUNT_ID" \
-      tfplan
+      -var "account_id=$ACCOUNT_ID"
   rules:
     - if: '$CI_COMMIT_BRANCH == $DEPLOY_BRANCH'
       when: manual
