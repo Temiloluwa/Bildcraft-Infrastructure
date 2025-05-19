@@ -26,6 +26,7 @@ module "processing_lambda" {
   timeout                        = var.lambda_timeout
   lambda_environment             = var.lambda_environment_variables
   inline_iam_policy              = var.lambda_iam_policy_statements
+  invoke_function_permissions    = var.lambda_invoke_permissions
 }
 
 

@@ -63,7 +63,8 @@ apply:prod:
       -var-file=environment/prod-terraform.tfvars \
       -var "account_id=$ACCOUNT_ID"
   rules:
-    - if: '$CI_COMMIT_BRANCH == $DEPLOY_BRANCH'
+    #- if: '$CI_COMMIT_BRANCH == $DEPLOY_BRANCH'
+    - if: $CI_COMMIT_BRANCH
       when: manual
 
 cleanup:

@@ -89,6 +89,15 @@ variable "lambda_iam_policy_statements" {
   default     = null
 }
 
+variable "lambda_invoke_permissions" {
+  type = list(object({
+    principal  = string
+    source_arn = string
+  }))
+  description = "IAM policy statements to allow external services (e.g., S3) to invoke the Lambda function."
+  default     = null
+}
+
 variable "tags" {
   type        = map(string)
   default     = null
