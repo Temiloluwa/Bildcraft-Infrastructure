@@ -53,4 +53,17 @@ data "aws_iam_policy_document" "lambda_deployment_s3_policy" {
       "${module.lambda_source_codes.bucket_arn}/*"
     ]
   }
+  statement {
+    actions = [
+      "lambda:UpdateFunctionCode",
+      "lambda:UpdateFunctionConfiguration",
+      "lambda:PublishVersion",
+      "lambda:CreateAlias",
+      "lambda:UpdateAlias",
+      "lambda:GetFunction"
+    ]
+    resources = [
+      module.image_translation_lambda.lambda_function_arn
+    ]
+  }
 }
