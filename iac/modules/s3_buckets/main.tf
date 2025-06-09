@@ -23,3 +23,15 @@ module "upload_s3_bucket" {
   event_notification_details = var.event_notification_details
   cors_configuration         = var.cors_configuration
 }
+
+module "results_s3_bucket" {
+  source  = "cloudposse/s3-bucket/aws"
+  version = "4.10.0"
+  name    = "${module.s3_label.id}-results"
+  tags    = module.s3_label.tags
+
+  s3_object_ownership = "BucketOwnerEnforced"
+  enabled             = true
+  user_enabled        = false
+  versioning_enabled  = false
+}

@@ -1,36 +1,61 @@
-# Infrastructure
+# Bildcraft Shared Infrastructure
 
-This repository contains the Terraform code for managing shared infrastructure resources for the Bildcraft project.
+This repository contains modular Terraform code for managing shared AWS infrastructure resources for the Bildcraft project. It leverages [Cloud Posse](https://github.com/cloudposse) modules for best practices, maintainability, and extensibility.
 
-## Structure
+## Features
 
-- `iac/` - Main Terraform configuration for shared infrastructure
-  - `main.tf` - Root module configuration
-  - `providers.tf` - Provider setup
-  - `variables.tf` - Variable declarations
-  - `outputs.tf` - Output definitions
-  - `locals.tf` - Local values
-  - `environment/` - Environment-specific variable files (e.g., `prod-terraform.tfvars`)
-  - `modules/` - Reusable Terraform modules
-    - `s3/` - S3 bucket module
-    - `iam/` - IAM resources module
+- **Modular Design:** Uses Cloud Posse modules for S3 buckets and Lambda functions, wrapped in custom modules for project-specific logic.
+- **Event-Driven Processing:** S3 buckets can trigger Lambda functions on object creation (e.g., for image translation workflows).
+- **Centralized Lambda Source:** Lambda deployment packages are stored in a shared S3 bucket for easy updates and versioning.
+- **Fine-Grained IAM:** IAM permissions are managed via module inputs, following least-privilege principles.
+- **Environment Support:** Easily extensible for multiple environments via variable files.
 
-## Deployment
+## Directory Structure
 
-Deployment and state management are handled via [Terraform Cloud](https://app.terraform.io/). All plans and applies are executed remotely, and state is securely stored in Terraform Cloud workspaces.
+```
+├── README.md
+└── iac/
+    ├── image-translation.tf      # Image translation S3/Lambda wiring
+    ├── locals.tf                 # Local values
+    ├── main.tf                   # Root module configuration
+    ├── outputs.tf                # Cross-module outputs
+    ├── providers.tf              # AWS provider and backend
+    ├── variables.tf              # Global variables
+    ├── environment/
+    │   └── prod-terraform.tfvars     # Production variables
+    └── modules/
+        ├── dynamodb_tables/
+        │   ├── main.tf
+        │   ├── outputs.tf
+        │   └── variables.tf
+        ├── lambda_fns/
+        │   ├── main.tf
+        │   ├── outputs.tf
+        │   └── variables.tf
+        ├── s3_buckets/
+        │   ├── main.tf
+        │   ├── outputs.tf
+        │   └── variables.tf
+        └── sqs_queues/
+            ├── main.tf
+            ├── outputs.tf
+            └── variables.tf
+```
 
 ## Usage
 
-1. Install [Terraform](https://www.terraform.io/downloads.html) (for local development and validation).
-2. Configure your AWS credentials and set the required variables (see `variables.tf`).
-3. Changes pushed to the repository will trigger runs in Terraform Cloud.
-4. For local validation, you can still run:
+1. Install [Terraform](https://www.terraform.io/downloads.html).
+2. Configure your AWS credentials and set required variables (see `variables.tf`).
+3. Upload Lambda deployment packages to the shared S3 bucket (see output values for bucket name).
+4. Run Terraform commands from the `iac/` directory:
    ```sh
    terraform init
    terraform plan -var-file=environment/prod-terraform.tfvars
+   terraform apply -var-file=environment/prod-terraform.tfvars
    ```
 
 ## Notes
 - State files and sensitive data are excluded via `.gitignore`.
-- Modules use the [Cloud Posse](https://github.com/cloudposse) Terraform modules for best practices.
+- All infrastructure changes are managed via Terraform Cloud for safety and auditability.
+- See module and file comments for further customization options.
 

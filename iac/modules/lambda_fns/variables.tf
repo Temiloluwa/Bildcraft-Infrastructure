@@ -95,7 +95,7 @@ variable "lambda_invoke_permissions" {
     source_arn = string
   }))
   description = "IAM policy statements to allow external services (e.g., S3) to invoke the Lambda function."
-  default     = null
+  default     = []
 }
 
 variable "tags" {
