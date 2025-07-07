@@ -9,6 +9,7 @@ module "s3_label" {
 }
 
 # docs: https://github.com/cloudposse/terraform-aws-s3-bucket
+
 module "upload_s3_bucket" {
   source  = "cloudposse/s3-bucket/aws"
   version = "4.10.0"
@@ -21,7 +22,7 @@ module "upload_s3_bucket" {
   versioning_enabled  = false
 
   event_notification_details = var.event_notification_details
-  cors_configuration         = var.cors_configuration
+  cors_configuration         = var.uploads_cors_configuration
 }
 
 module "results_s3_bucket" {
@@ -34,4 +35,5 @@ module "results_s3_bucket" {
   enabled             = true
   user_enabled        = false
   versioning_enabled  = false
+  cors_configuration  = var.results_cors_configuration
 }

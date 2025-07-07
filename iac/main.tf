@@ -35,35 +35,7 @@ module "lambda_deployment_iam_user" {
 
   ssm_base_path = "/${module.global.id}/lambda-deployment-user"
   inline_policies_map = {
-    s3 = data.aws_iam_policy_document.lambda_deployment_s3_policy.json
+    s3 = data.aws_iam_policy_document.iam_deployment_user_policy.json
   }
 }
 
-data "aws_iam_policy_document" "lambda_deployment_s3_policy" {
-  statement {
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-      "s3:PutObject",
-      "s3:PutObjectAcl",
-      "s3:DeleteObject"
-    ]
-    resources = [
-      module.lambda_source_codes.bucket_arn,
-      "${module.lambda_source_codes.bucket_arn}/*"
-    ]
-  }
-  statement {
-    actions = [
-      "lambda:UpdateFunctionCode",
-      "lambda:UpdateFunctionConfiguration",
-      "lambda:PublishVersion",
-      "lambda:CreateAlias",
-      "lambda:UpdateAlias",
-      "lambda:GetFunction"
-    ]
-    resources = [
-      module.image_translation_lambda.lambda_function_arn
-    ]
-  }
-}

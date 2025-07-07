@@ -25,8 +25,7 @@ variable "fifo_queue" {
   default     = false
 }
 
-variable "policy" {
-  description = "The JSON policy for the SQS queue."
+variable "s3_bucket_arn" {
+  description = "ARN of the S3 bucket allowed to send messages to the SQS queue."
   type        = string
-  default     = null
 }

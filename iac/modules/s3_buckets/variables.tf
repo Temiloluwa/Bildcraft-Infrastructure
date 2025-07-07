@@ -21,8 +21,14 @@ variable "event_notification_details" {
   }
 }
 
-variable "cors_configuration" {
-  description = "CORS configuration for the S3 bucket."
+variable "uploads_cors_configuration" {
+  description = "CORS configuration for the uploads S3 bucket."
+  type        = any
+  default     = []
+}
+
+variable "results_cors_configuration" {
+  description = "CORS configuration for the results S3 bucket."
   type        = any
   default     = []
 }

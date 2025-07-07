@@ -39,7 +39,7 @@ variable "lambda_memory_size" {
   description = "Amount of memory in MB for the Lambda function."
 }
 
-variable "lambda_reserved_concurrent_excurrentions" {
+variable "lambda_reserved_concurrent_executions" {
   type        = number
   default     = -1
   description = "Number of reserved concurrent executions for the Lambda function. Use -1 for unreserved."
@@ -47,7 +47,6 @@ variable "lambda_reserved_concurrent_excurrentions" {
 
 variable "lambda_role_name" {
   type        = string
-  default     = null
   description = "Name of the IAM role for the Lambda function."
 }
 
@@ -85,8 +84,23 @@ variable "lambda_environment_variables" {
 
 variable "lambda_iam_policy_statements" {
   type        = string
-  description = "List of IAM policy statements to attach to the Lambda function as inline policies."
-  default     = null
+  description = "IAM policy document (JSON) to attach to the Lambda function as an inline policy."
+  default     = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*"
+    }
+  ]
+}
+EOF
 }
 
 variable "lambda_invoke_permissions" {
