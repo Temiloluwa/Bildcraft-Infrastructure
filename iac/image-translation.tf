@@ -8,8 +8,8 @@ module "image_translation_lambda" {
   lambda_function_name                  = "processor-fn"
   lambda_handler                        = "lambda_entrypoint.lambda_handler"
   lambda_runtime                        = "python3.12"
-  lambda_memory_size                    = 256
-  lambda_reserved_concurrent_executions = 3
+  lambda_memory_size                    = 2048
+  lambda_reserved_concurrent_executions = 20
   lambda_role_name                      = "processor-role"
   lambda_s3_bucket                      = module.lambda_source_codes.bucket_id
   lambda_s3_key                         = "blc/image-translation/image-translation-source-codes.zip"
@@ -79,7 +79,7 @@ resource "aws_lambda_event_source_mapping" "image_translation_lambda_sqs" {
   event_source_arn = module.image_translation_sqs.queue_arn
   function_name    = module.image_translation_lambda.lambda_function_arn
   enabled          = true
-  batch_size       = 5
+  batch_size       = 10
 }
 
 # Image DynamoDB table
@@ -106,8 +106,8 @@ module "image_translation_api_lambda" {
   lambda_function_name                  = "api-gateway-proxy-fn"
   lambda_handler                        = "lambda_entrypoint.lambda_handler"
   lambda_runtime                        = "python3.12"
-  lambda_memory_size                    = 256
-  lambda_reserved_concurrent_executions = 3
+  lambda_memory_size                    = 512
+  lambda_reserved_concurrent_executions = 10
   lambda_role_name                      = "api-gateway-proxy-role"
   lambda_s3_bucket                      = module.lambda_source_codes.bucket_id
   lambda_s3_key                         = "blc/image-translation/api-gateway-proxy-source-codes.zip"
